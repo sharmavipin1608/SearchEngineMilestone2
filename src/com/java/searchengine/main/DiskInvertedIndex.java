@@ -3,7 +3,6 @@ package com.java.searchengine.main;
 import com.java.searchengine.datastructure.PositionalPostingsStructure;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
@@ -14,8 +13,6 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class DiskInvertedIndex {
 
@@ -28,6 +25,7 @@ public class DiskInvertedIndex {
 
     public DiskInvertedIndex(String path) {
         try {
+            System.out.println(path);
             mPath = path;
             mVocabList = new RandomAccessFile(new File(path, "vocab.bin"), "r");
             mPostings = new RandomAccessFile(new File(path, "postings.bin"), "r");
@@ -40,7 +38,8 @@ public class DiskInvertedIndex {
     }
 
     private static ArrayList<PositionalPostingsStructure>
-            readPostingsFromFile(RandomAccessFile postings, long postingsPosition) {
+            readPostingsFromFile(RandomAccessFile postings, long postingsPosition,
+                    int weighingScheme, boolean readPositions) {
         try {
             // seek to the position in the file where the postings start.
             postings.seek(postingsPosition);
@@ -67,21 +66,47 @@ public class DiskInvertedIndex {
             // repeat until all postings are read.
             int docId = 0;
             for (int i = 0; i < documentFrequency; i++) {
+                double docWeight = 0;
                 postings.read(buffer, 0, buffer.length);
-                docId += ByteBuffer.wrap(buffer).getInt();
-
+                int lastDoc = ByteBuffer.wrap(buffer).getInt();
+                docId += lastDoc;
+                //System.out.println("doc ID" + docId + " last doc : "+lastDoc);
+                //postings.seek(postingsPosition+40);
+                
+                if(weighingScheme > 0){
+                    byte[] docWghtBuffer = new byte[8];
+                    int index = (weighingScheme-1)*8;
+                    postings.skipBytes(index);
+                    postings.read(docWghtBuffer, 0, docWghtBuffer.length);
+                    docWeight = ByteBuffer.wrap(docWghtBuffer).getDouble();
+                    postings.skipBytes(32 - (8 * weighingScheme)); 
+                }
+                else{
+                    postings.skipBytes(32);
+                }
+                
                 //read positions
                 postings.read(buffer, 0, buffer.length);
                 int termFrequency = ByteBuffer.wrap(buffer).getInt();
-                ArrayList<Integer> positionList = new ArrayList<>(termFrequency);
-                int position = 0;
-                for (int j = 0; j < termFrequency; j++) {
-                    postings.read(buffer, 0, buffer.length);
-                    position += ByteBuffer.wrap(buffer).getInt();
-                    positionList.add(position);
+                //System.out.println("term freq : " + termFrequency);
+                
+                ArrayList<Integer> positionList = null;
+                if(readPositions){
+                    positionList = new ArrayList<>(termFrequency);
+                    int position = 0;
+                    for (int j = 0; j < termFrequency; j++) {
+                        postings.read(buffer, 0, buffer.length);
+                        position += ByteBuffer.wrap(buffer).getInt();
+                        positionList.add(position);
+                    }
                 }
+                else{
+                    postings.skipBytes(4 * termFrequency);
+                }
+                
                 //posStruct.add();
-                posStruct.add(i, new PositionalPostingsStructure(docId, positionList, termFrequency));
+                posStruct.add(i, new PositionalPostingsStructure(docId, 
+                        positionList, termFrequency, docWeight));
                 //end
             }
             return posStruct;
@@ -91,12 +116,25 @@ public class DiskInvertedIndex {
         return null;
     }
 
-    public ArrayList<PositionalPostingsStructure> GetPostings(String term) {
+    public ArrayList<PositionalPostingsStructure> GetPostings(String term, 
+            boolean readPositions, int weighingScheme) {
         long postingsPosition = binarySearchVocabulary(term);
+        System.out.println("long position : "+postingsPosition);
         if (postingsPosition >= 0) {
-            return readPostingsFromFile(mPostings, postingsPosition);
+            return readPostingsFromFile(mPostings, postingsPosition,
+                    weighingScheme, readPositions);
         }
         return null;
+    }
+    
+    public ArrayList<PositionalPostingsStructure> getPostingsBooleanMode(
+            String term, boolean readPositions) {
+        return GetPostings(term,readPositions,0);
+    }
+    
+    public ArrayList<PositionalPostingsStructure> getPostingsRankedMode(
+            String term, int weighingScheme) {
+        return GetPostings(term,false,weighingScheme);
     }
 
     private long binarySearchVocabulary(String term) {
@@ -182,14 +220,14 @@ public class DiskInvertedIndex {
             RandomAccessFile mDocWeights = new RandomAccessFile(
                     new File(mPath, "docWeights.bin"), "r");
             byte[] byteBuffer = new byte[8];
-            System.out.println("here" + docId);
+            //System.out.println("here" + docId);
 
             mDocWeights.seek(2 * 8 * docId);
 
             mDocWeights.read(byteBuffer, 0, byteBuffer.length);
             weight = ByteBuffer.wrap(byteBuffer).getDouble();
 
-            System.out.println(weight);
+            //System.out.println(weight);
 
 //           while (mDocWeights.read(byteBuffer, 0, byteBuffer.length) > 0) { // while we keep reading 8 bytes
 //             double weight = ByteBuffer.wrap(byteBuffer).getDouble();

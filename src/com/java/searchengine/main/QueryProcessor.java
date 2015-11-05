@@ -136,7 +136,7 @@ public class QueryProcessor {
                 notQuery = true;
             }
             
-            ArrayList<PositionalPostingsStructure> temp = searchTerm(term);
+            ArrayList<PositionalPostingsStructure> temp = searchTerm(term, false);
             if(temp == null)
                 return null;
                        
@@ -178,12 +178,12 @@ public class QueryProcessor {
         String terms[] = phraseQuery.split(" ");
         for(int i = 0; i < (terms.length - 1); i++){
             if( i == 0 ){
-                list1 = searchTerm(terms[i]);
+                list1 = searchTerm(terms[i], true);
             }
             else{
                 list1 = resultList;
             }
-            list2 = searchTerm(terms[i+1]);
+            list2 = searchTerm(terms[i+1], true);
             if(list1 == null || list2 == null){
                 resultList = null;
                 break;
@@ -201,12 +201,14 @@ public class QueryProcessor {
      * @param term Term to be searched
      * @return Postings list for the term
      */
-    public ArrayList<PositionalPostingsStructure> searchTerm(String term){
+    public ArrayList<PositionalPostingsStructure> searchTerm(String term, 
+            boolean getPositions){
         term = term.replaceAll("^\\W+|\\W+$","");
         term = PorterStemmer.processToken(term);
 
         //Searching the term in PositionalInvertedIndex
-        ArrayList<PositionalPostingsStructure> termPostingsList = index.GetPostings(term);
+        ArrayList<PositionalPostingsStructure> termPostingsList = 
+                index.getPostingsBooleanMode(term, getPositions);
         return termPostingsList;
     }
 }

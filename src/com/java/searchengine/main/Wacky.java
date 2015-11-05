@@ -23,10 +23,14 @@ public class Wacky implements IVariableTermFrequency {
     }
 
     @Override
-    public double documentTermWeight(int freqOfTermInDoc, DiskInvertedIndex index, int docId) {
+    public double documentTermWeight(int freqOfTermInDoc, double averageTermFreq, 
+            double documentWeight, double averageDocumentWeight, int docId) {
         double docWeightTerm;
-        docWeightTerm = (1 + Math.log(freqOfTermInDoc))/(1 + Math.log(index.getAvgTermFreqForDoc(docId)));
-        System.out.println("wacky : documentTermWeight() : " + docWeightTerm);
+//        System.out.println("Wacky : freqOfTermInDoc : " + freqOfTermInDoc + " averageTermFreq : " + averageTermFreq
+//            + " documentWeight : " + documentWeight + " averageDocumentWeight : " + averageDocumentWeight
+//            + " docId : " + docId);
+        docWeightTerm = (1 + Math.log(freqOfTermInDoc))/(1 + Math.log(averageTermFreq));
+//        System.out.println("wacky : documentTermWeight() : " + docWeightTerm);
         return docWeightTerm;
     }
 

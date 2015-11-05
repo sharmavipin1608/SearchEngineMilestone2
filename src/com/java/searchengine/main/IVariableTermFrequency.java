@@ -12,7 +12,8 @@ package com.java.searchengine.main;
 public interface IVariableTermFrequency {
     public double queryTermWeight(int sizeOfCorpus, int documentFreqOfTerm);
     
-    public double documentTermWeight(int freqOfTermInDoc, DiskInvertedIndex index, int docId);
+    public double documentTermWeight(int freqOfTermInDoc, double averageTermFreq, 
+            double documentWeight, double averageDocumentWeight, int docId);
     
     public double documentWeight(DiskInvertedIndex index, int docId);
 }

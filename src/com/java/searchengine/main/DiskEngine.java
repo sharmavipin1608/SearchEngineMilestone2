@@ -1,8 +1,6 @@
 package com.java.searchengine.main;
 
-import com.java.searchengine.datastructure.PositionalPostingsStructure;
 import static java.lang.System.exit;
-import java.util.ArrayList;
 import java.util.Scanner;
 
 public class DiskEngine {
@@ -10,7 +8,8 @@ public class DiskEngine {
     public static void main(String[] args) {
         while (true) {
             Scanner scan = new Scanner(System.in);
-
+            System.out.println("/Users/vipinsharma/NetBeansProjects/SearchEngineAssignment2/MobyDick");
+            System.out.println("/Users/vipinsharma/Desktop/documentsTrial");
             System.out.println("Menu:");
             System.out.println("1) Build index");
             System.out.println("2) Boolean Mode");
@@ -31,44 +30,9 @@ public class DiskEngine {
 
                 case 2:
                     System.out.println("Enter the name of an index to read:");
-                    String indexName = scan.nextLine();
-
-                    DiskInvertedIndex index = new DiskInvertedIndex(indexName);
-
-                    while (true) {
-                        System.out.println("Enter one or more search terms, separated "
-                                + "by spaces:");
-                        Scanner scan1 = new Scanner(System.in);
-                        String input = scan1.nextLine();
-
-                        if (input.equals("EXIT")) {
-                            break;
-                        }
-
-                        ArrayList<PositionalPostingsStructure> postingsList = index.GetPostings(
-                                PorterStemmer.processToken(input.toLowerCase())
-                        );
-
-                        if (postingsList == null) {
-                            System.out.println("Term not found");
-                        } else {
-                            System.out.print("Docs: ");
-                            for (PositionalPostingsStructure posStruct : postingsList) {
-                                posStruct.printData(0, index);
-                                System.out.println();
-                            }
-                            System.out.println();
-                            System.out.println();
-                        }
-                    }
-                    break;
-
-                case 3:
-                    System.out.println("Enter the name of an index to read:");
                     String indexName1 = scan.nextLine();
 
                     DiskInvertedIndex index1 = new DiskInvertedIndex(indexName1);
-
                     QueryProcessor query = new QueryProcessor(index1);
 
                     while (true) {
@@ -89,26 +53,31 @@ public class DiskEngine {
                             for (int i : arr) {
                                 System.out.println(index1.getFileNames().get(i));
                             }
+                            System.out.println("Number of documents : " + arr.length);
+                            System.out.println();
                         }
-
                     }
-
                     break;
 
-                case 4:
-                    exit(0);
-                    break;
-
-                case 5:
-                    System.out.println("Enter the name of an index to read:");
+                case 3:
+                    System.out.println("\n\nEnter the name of an index to read:");
                     String indexName2 = scan.nextLine();
 
                     DiskInvertedIndex index2 = new DiskInvertedIndex(indexName2);
-                    RankedRetrievals rankedRetrievals = new RankedRetrievals(index2);
+                    
+                    System.out.println("\n\nWeighting scheme :");
+                    System.out.println("1. Default");
+                    System.out.println("2. Traditional");
+                    System.out.println("3. Okapi");
+                    System.out.println("4. Wacky");
+                    System.out.print("Select weighting scheme : ");
+                    int weighingScheme = scan.nextInt();
+                    
+                    RankedRetrievals rankedRetrievals = new RankedRetrievals(index2,weighingScheme);
 
                     //QueryProcessor query = new QueryProcessor(index1);
                     while (true) {
-                        System.out.println("Enter one or more search terms, separated "
+                        System.out.println("\tEnter one or more search terms, separated "
                                 + "by spaces:");
                         Scanner scan3 = new Scanner(System.in);
                         String input3 = scan3.nextLine();
@@ -118,9 +87,11 @@ public class DiskEngine {
                         }
 
                         rankedRetrievals.beginCalculations(input3);
-
                     }
+                    break;
 
+                case 4:
+                    exit(0);
                     break;
             }
         }

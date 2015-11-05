@@ -18,7 +18,8 @@ public class Traditional implements IVariableTermFrequency{
     }
 
     @Override
-    public double documentTermWeight(int freqOfTermInDoc, DiskInvertedIndex index, int docId) {
+    public double documentTermWeight(int freqOfTermInDoc, double averageTermFreq, 
+            double documentWeight, double averageDocumentWeight, int docId) {
         double docWeightTerm = freqOfTermInDoc;
         return docWeightTerm;
     }

@@ -11,6 +11,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -23,6 +24,10 @@ public class IndexWriter {
     private String mFolderPath;
     
     private static int numberOfDocuments;
+    
+    private double[] averageTermFreq;
+    
+    private double[] documentWeights;
 
     /**
      * Constructs an IndexWriter object which is prepared to index the given
@@ -50,8 +55,16 @@ public class IndexWriter {
         PositionalInvertedIndex index = new PositionalInvertedIndex();
 
         // Index the directory using a naive index
+        Calendar cal = Calendar.getInstance();
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+        System.out.println("\nIndexing of files started at : " 
+                + sdf.format(cal.getTime()) );
         indexFiles(folder, index);
-
+        Calendar cal1 = Calendar.getInstance();
+        SimpleDateFormat sdf1 = new SimpleDateFormat("HH:mm:ss");
+        System.out.println("\nIndexing of files ended at : " 
+                + sdf.format(cal1.getTime()) );
+        
 			// at this point, "index" contains the in-memory inverted index 
         // now we save the index to disk, building three files: the postings index,
         // the vocabulary list, and the vocabulary table.
@@ -59,10 +72,43 @@ public class IndexWriter {
         String[] dictionary = index.getDictionary();
         // an array of positions in the vocabulary file
         long[] vocabPositions = new long[dictionary.length];
-
+        double[] averageTermFreq = new double[numberOfDocuments+1];
+        
+        Calendar cal2 = Calendar.getInstance();
+        SimpleDateFormat sdf2 = new SimpleDateFormat("HH:mm:ss");
+        System.out.println("\nWriting vocab file start : " 
+                + sdf2.format(cal2.getTime()) );
         buildVocabFile(folder, dictionary, vocabPositions);
-        buildPostingsFile(folder, index, dictionary, vocabPositions);
-        buildDocWeightsFile(folder,index);
+        Calendar cal3 = Calendar.getInstance();
+        SimpleDateFormat sdf3 = new SimpleDateFormat("HH:mm:ss");
+        System.out.println("\nWriting vocab file ends : " 
+                + sdf3.format(cal3.getTime()) );
+        
+        Calendar cal4 = Calendar.getInstance();
+        SimpleDateFormat sdf4 = new SimpleDateFormat("HH:mm:ss");
+        System.out.println("\nWriting doc weight file start : " 
+                + sdf4.format(cal4.getTime()) );
+        double[] documentWeights = buildDocWeightsFile(folder,index,averageTermFreq);
+        Calendar cal5 = Calendar.getInstance();
+        SimpleDateFormat sdf5 = new SimpleDateFormat("HH:mm:ss");
+        System.out.println("\nWriting doc weight file ends : " 
+                + sdf5.format(cal5.getTime()) );
+        
+        Calendar cal6 = Calendar.getInstance();
+        SimpleDateFormat sdf6 = new SimpleDateFormat("HH:mm:ss");
+        System.out.println("\nWriting postings file start : " 
+                + sdf6.format(cal6.getTime()) );
+        buildPostingsFile(folder, index, dictionary, vocabPositions, averageTermFreq, documentWeights);
+        Calendar cal7 = Calendar.getInstance();
+        SimpleDateFormat sdf7 = new SimpleDateFormat("HH:mm:ss");
+        System.out.println("\nWriting postings file end : " 
+                + sdf7.format(cal7
+                        
+                        
+                        
+                        
+                        
+                        .getTime()) );
     }
 
     /**
@@ -70,7 +116,8 @@ public class IndexWriter {
      * NaiveInvertedIndex of that directory.
      */
     private static void buildPostingsFile(String folder, PositionalInvertedIndex index,
-            String[] dictionary, long[] vocabPositions) {
+            String[] dictionary, long[] vocabPositions, double[] averageTermFreq,
+            double[] documentWeights) {
         FileOutputStream postingsFile = null;
         //folder = "/Users/vipinsharma/NetBeansProjects/SearchEngineHW5/src/diskFiles";
         try {
@@ -89,6 +136,19 @@ public class IndexWriter {
                     .putInt(dictionary.length).array();
             vocabTable.write(tSize, 0, tSize.length);
             int vocabI = 0;
+            
+            //start 
+            double averageDocumentWeight = 0;
+            for(int i=0; i<=numberOfDocuments; i++){
+                averageDocumentWeight += documentWeights[i];
+                System.out.println("Index : " + i + " averageTermFreq : " 
+                        + averageTermFreq[i] + " documentWeights : " + documentWeights[i]);
+                
+            }
+            averageDocumentWeight = (averageDocumentWeight/(numberOfDocuments+1));
+            System.out.println("averageDocumentWeight : "+averageDocumentWeight);
+            //end
+            
             for (String s : dictionary) {
                 // for each String in dictionary, retrieve its postings.
                 List<PositionalPostingsStructure> postings = index.getPostings(s);
@@ -121,6 +181,20 @@ public class IndexWriter {
                     //TODO: read the positions and encode gaps into the files
                     //Start - Writing term frequency of the term in document on file
                     List<Integer> positionPostings = posStruct.getPositionList();
+                    
+                    //storing document weights on file
+                    for(int i=0; i<4; i++){
+                        IVariableTermFrequency variableTermFrequency = VariableTermFreqFactory.getWeightingScheme(i+1);
+                        double docTermWght = variableTermFrequency.documentTermWeight
+                            (positionPostings.size(), averageTermFreq[docId], documentWeights[docId],
+                                    averageDocumentWeight, docId);
+                        //System.out.println("term : " + s + " doc ID : " + docId + " docTermWght : " + docTermWght);
+                        byte[] docTermWghtBytes = ByteBuffer.allocate(8)
+                                .putDouble(docTermWght).array();
+                        postingsFile.write(docTermWghtBytes, 0, docTermWghtBytes.length);
+                    }
+                    //end
+                    
                     byte[] termFreqBytes = ByteBuffer.allocate(4)
                         .putInt(positionPostings.size()).array();
                     postingsFile.write(termFreqBytes, 0, termFreqBytes.length);
@@ -169,7 +243,7 @@ public class IndexWriter {
                 vocabList.write(vocabWord); // then write the String
                 vocabI++;
                 vocabPos += vocabWord.length();
-                System.out.println(vocabWord + " = " + vocabPos);
+                //System.out.println(vocabWord + " = " + vocabPos);
             }
         } catch (FileNotFoundException ex) {
             System.out.println(ex.toString());
@@ -328,7 +402,8 @@ public class IndexWriter {
         double[] numOfTerms = new double[numberOfDocuments+1];
         double[] freqSum = new double[numberOfDocuments+1];
         
-        System.out.println(numberOfDocuments);
+        System.out.println("--------calculateDocumentWeights-----------");
+        System.out.println("num of docs" + numberOfDocuments);
         for(String term : index.getDictionary()){
             List<PositionalPostingsStructure> postings = index.getPostings(term);
             for(PositionalPostingsStructure posStruct : postings){
@@ -338,31 +413,34 @@ public class IndexWriter {
                 
                 freqSum[posStruct.getDocumentId()] += posStruct.getTermFrequency();
                 numOfTerms[posStruct.getDocumentId()] += 1;
+                
+//                System.out.println("term : " + term + " freq : " + posStruct.getTermFrequency()
+//                    + " docid : " + posStruct.getDocumentId() + " termWeight : " + termWeight);
             }
         }
         
         for(int i = 0; i <= numberOfDocuments; i++){ 
-            System.out.println("pre weight : " + documentWeights[i]);
+            //System.out.println("pre weight : " + documentWeights[i]);
             documentWeights[i] = Math.sqrt(documentWeights[i]);
             
             averageTermFreq[i] = freqSum[i]/numOfTerms[i];
         }
         
         for(double weight : documentWeights){
-            System.out.println("post weight : " + weight);
+            //System.out.println("post weight : " + weight);
             //weight = Math.sqrt(weight);
         }
         return documentWeights;
     }
     
-    private static void buildDocWeightsFile(String folder, 
-            PositionalInvertedIndex index) {
+    private static double[] buildDocWeightsFile(String folder, 
+            PositionalInvertedIndex index,double[] averageTermFreq) {
         FileOutputStream docWeightsFile = null;
-        double[] averageTermFreq = new double[numberOfDocuments+1];
+        
         double[] documentWeights = calculateDocumentWeights(index,averageTermFreq);
         
         for(int i = 0; i <= numberOfDocuments; i++){ 
-            System.out.println("averageTermFreq"+ averageTermFreq[i]);
+            //System.out.println("averageTermFreq"+ averageTermFreq[i]);
         }
         
         try {
@@ -391,5 +469,6 @@ public class IndexWriter {
             } catch (IOException ex) {
             }
         }
+        return documentWeights;
     }
 }

@@ -196,6 +196,7 @@ public class SearchEngineUtilities {
             
             if(pointer1 == arr1size){
                 while(pointer2 < arr2size){
+                    value2 = arr2[pointer2];
                     str = str + "," + value2;
                     pointer2++;
                 }
@@ -204,6 +205,7 @@ public class SearchEngineUtilities {
             
             if(pointer2 == arr2size){
                 while(pointer1 < arr1size){
+                    value1 = arr1[pointer1];
                     str = str + "," + value1;
                     pointer1++;
                 }

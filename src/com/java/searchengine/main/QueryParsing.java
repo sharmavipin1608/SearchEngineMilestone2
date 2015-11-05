@@ -26,9 +26,21 @@ public class QueryParsing {
      * @param args
      */
     public static void main(String[] args) {
+        
+        String str = "vipin NEAR/2 sharma";
+        Pattern ptr = Pattern.compile("(.*)NEAR/2(.*)");
+        if(ptr.matcher(str).find())
+            System.out.println("match found");
+        else
+            System.out.println("match not found");
+        
+        str = "vipin sharma";
+        if(ptr.matcher(str).find())
+            System.out.println("match found");
+        else
+            System.out.println("match not found");
 
-        System.out.println("Angels corpus: /Users/vipinsharma/NetBeansProjects/"
-                + "SearchEngineAssignment2/angels");
+        System.out.println("Angels corpus: /Users/vipinsharma/NetBeansProjects/SearchEngineAssignment2/angels");
         System.out.println("Custom corpus : /Users/vipinsharma/Downloads/Corpus");
         System.out.println("Moby Dick : /Users/vipinsharma/NetBeansProjects/SearchEngineAssignment2/MobyDick");
         System.out.print("\n\n\nEnter directory path you want to index : ");

@@ -18,17 +18,13 @@ public class Okapi implements IVariableTermFrequency {
     }
 
     @Override
-    public double documentTermWeight(int freqOfTermInDoc, DiskInvertedIndex index, int docId) {
-        double averageDocumentWeight = 0;
-        for(int i=0; i<index.getFileNames().size(); i++){
-            averageDocumentWeight += index.getDocumentWeights(i);
-        }
-        averageDocumentWeight = (averageDocumentWeight/index.getFileNames().size());
-        
-        double documentWeight = index.getDocumentWeights(docId);
-        
+    public double documentTermWeight(int freqOfTermInDoc, double averageTermFreq, 
+            double documentWeight, double averageDocumentWeight, int docId) {
+//        System.out.println("Okapi : freqOfTermInDoc : " + freqOfTermInDoc + " averageTermFreq : " + averageTermFreq
+//            + " documentWeight : " + documentWeight + " averageDocumentWeight : " + averageDocumentWeight
+//            + " docId : " + docId);
         double kDoc = 1.2 * (0.25 + (0.75 * (documentWeight/averageDocumentWeight)));
-        double docWeightTerm = (2.2 * freqOfTermInDoc)/(freqOfTermInDoc + kDoc);
+        double docWeightTerm = (double)((2.2 * freqOfTermInDoc)/(freqOfTermInDoc + kDoc));
         return docWeightTerm;
     }
 

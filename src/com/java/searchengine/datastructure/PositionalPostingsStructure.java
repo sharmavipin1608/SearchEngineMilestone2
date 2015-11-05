@@ -19,7 +19,13 @@ public class PositionalPostingsStructure {
     
     //stores the term frequency of the document 
     private int termFrequency;
+    
+    private double docWeight;
 
+    public double getDocWeight(){
+        return docWeight;
+    }
+    
     /**
      * Constructor for the class being used to initialize the attributes of 
      * the class and set the value of the document id
@@ -48,10 +54,12 @@ public class PositionalPostingsStructure {
      * @param documentId
      * @param position
      */
-    public PositionalPostingsStructure(int documentId, ArrayList<Integer> positionList, int freq) {
-        docId = documentId;
+    public PositionalPostingsStructure(int documentId, 
+            ArrayList<Integer> positionList, int freq, double docWght) {
+        this.docId = documentId;
         this.positionList = positionList;
-        termFrequency = freq;
+        this.termFrequency = freq;
+        this.docWeight = docWght;
     }
 
     /**
