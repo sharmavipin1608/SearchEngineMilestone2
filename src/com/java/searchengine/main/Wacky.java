@@ -15,9 +15,9 @@ public class Wacky implements IVariableTermFrequency {
 
     @Override
     public double queryTermWeight(int sizeOfCorpus, int documentFreqOfTerm) {
-        double weightQueryTerm = Math.max(0,Math.log((double)(sizeOfCorpus - documentFreqOfTerm)/documentFreqOfTerm));
+        double weightQueryTerm = Math.max(0,Math.log(((double)sizeOfCorpus - documentFreqOfTerm)/documentFreqOfTerm));
         
-        System.out.println("wacky : queryTermWeight() : " + weightQueryTerm + " size : " + sizeOfCorpus + " freq : " + documentFreqOfTerm);
+        //System.out.println("wacky : queryTermWeight() : " + weightQueryTerm + " size : " + sizeOfCorpus + " freq : " + documentFreqOfTerm);
         
         return weightQueryTerm;
     }
@@ -37,7 +37,7 @@ public class Wacky implements IVariableTermFrequency {
     @Override
     public double documentWeight(DiskInvertedIndex index, int docId) {
         File file = new File(index.mPath,index.getFileNames().get(docId));
-        System.out.println("wacky file length : "+file.length());
+        //System.out.println("wacky file length : "+file.length());
         return file.length();
     }
     

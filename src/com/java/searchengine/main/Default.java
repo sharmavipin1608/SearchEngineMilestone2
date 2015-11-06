@@ -13,7 +13,7 @@ public class Default implements IVariableTermFrequency{
 
     @Override
     public double queryTermWeight(int sizeOfCorpus, int documentFreqOfTerm) {
-        double weightQueryTerm = Math.log(1 + (sizeOfCorpus/documentFreqOfTerm));
+        double weightQueryTerm = Math.log(1 + ((double)sizeOfCorpus/documentFreqOfTerm));
         return weightQueryTerm;
     }
 

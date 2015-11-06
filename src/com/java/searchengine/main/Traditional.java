@@ -13,7 +13,7 @@ public class Traditional implements IVariableTermFrequency{
 
     @Override
     public double queryTermWeight(int sizeOfCorpus, int documentFreqOfTerm) {
-        double weightQueryTerm = Math.log(sizeOfCorpus/documentFreqOfTerm);
+        double weightQueryTerm = Math.log((double)sizeOfCorpus/documentFreqOfTerm);
         return weightQueryTerm;
     }
 

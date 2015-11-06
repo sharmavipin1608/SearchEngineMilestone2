@@ -27,13 +27,16 @@ public class QueryParsing {
      */
     public static void main(String[] args) {
         
-        String str = "vipin NEAR/2 sharma";
-        Pattern ptr = Pattern.compile("(.*)NEAR/2(.*)");
+        String str = "vipin NEAR/2        sharma";
+        str = str.trim();
+        Pattern ptr = Pattern.compile("(.*)NEAR/[0-9](.*)");
         if(ptr.matcher(str).find())
             System.out.println("match found");
         else
             System.out.println("match not found");
-        
+        String str1 = str.replaceAll("NEAR/2", "");
+        String str2 = str.substring(str.indexOf("/")+1, str.indexOf("/")+2);
+        System.out.println(str1 + " num : "+ str2);
         str = "vipin sharma";
         if(ptr.matcher(str).find())
             System.out.println("match found");

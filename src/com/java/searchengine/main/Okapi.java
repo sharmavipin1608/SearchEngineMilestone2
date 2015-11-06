@@ -13,7 +13,7 @@ public class Okapi implements IVariableTermFrequency {
 
     @Override
     public double queryTermWeight(int sizeOfCorpus, int documentFreqOfTerm) {
-        double weightQueryTerm = Math.log((sizeOfCorpus - documentFreqOfTerm + 0.5)/(documentFreqOfTerm + 0.5));
+        double weightQueryTerm = Math.log(((double)sizeOfCorpus - (double)documentFreqOfTerm + 0.5)/((double)documentFreqOfTerm + 0.5));
         return weightQueryTerm;
     }
 

@@ -8,6 +8,7 @@ public class DiskEngine {
     public static void main(String[] args) {
         while (true) {
             Scanner scan = new Scanner(System.in);
+            System.out.println("Angels corpus: /Users/vipinsharma/NetBeansProjects/SearchEngineAssignment2/angels");
             System.out.println("/Users/vipinsharma/NetBeansProjects/SearchEngineAssignment2/MobyDick");
             System.out.println("/Users/vipinsharma/Desktop/documentsTrial");
             System.out.println("Menu:");

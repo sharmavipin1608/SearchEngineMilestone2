@@ -237,7 +237,7 @@ public class IndexBuilderFactory {
                 break;
             }
                 
-            resultList = SearchEngineUtilities.positionalSearch(list1, list2);
+            resultList = SearchEngineUtilities.positionalSearch(list1, list2, 1);
         }
         
         return resultList;

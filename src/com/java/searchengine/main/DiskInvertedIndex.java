@@ -25,7 +25,7 @@ public class DiskInvertedIndex {
 
     public DiskInvertedIndex(String path) {
         try {
-            System.out.println(path);
+            //System.out.println(path);
             mPath = path;
             mVocabList = new RandomAccessFile(new File(path, "vocab.bin"), "r");
             mPostings = new RandomAccessFile(new File(path, "postings.bin"), "r");
@@ -119,7 +119,7 @@ public class DiskInvertedIndex {
     public ArrayList<PositionalPostingsStructure> GetPostings(String term, 
             boolean readPositions, int weighingScheme) {
         long postingsPosition = binarySearchVocabulary(term);
-        System.out.println("long position : "+postingsPosition);
+        //System.out.println("long position : "+postingsPosition);
         if (postingsPosition >= 0) {
             return readPostingsFromFile(mPostings, postingsPosition,
                     weighingScheme, readPositions);

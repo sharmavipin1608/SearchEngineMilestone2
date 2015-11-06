@@ -29,8 +29,70 @@ public class SearchEngineUtilities {
      * @return list of postings after performing positional search on 2 terms
      */
         
+//    public static List<PositionalPostingsStructure> positionalSearch(
+//        List<PositionalPostingsStructure> list1, List<PositionalPostingsStructure> list2){
+//        int pointer1 = 0, pointer2 = 0;
+//        List<PositionalPostingsStructure> resultList = 
+//                new ArrayList<>();
+//        
+//        while(true){
+//            int docId1 = list1.get(pointer1).getDocumentId();
+//            int docId2 = list2.get(pointer2).getDocumentId();
+//            
+//            if(docId1 == docId2){
+//                boolean flag = compareList(list1.get(pointer1).getPositionList(),
+//                        list2.get(pointer2).getPositionList());
+//                if(flag)
+//                    resultList.add(list2.get(pointer2));
+//                pointer1++;
+//                pointer2++;
+//            }
+//            else if(docId1 > docId2){
+//                pointer2++;
+//            }
+//            else if(docId1 < docId2){
+//                pointer1++;
+//            }
+//            if(pointer1 >= list1.size() || pointer2 >= list2.size())    
+//                break;
+//        }
+//        return resultList;
+//    }
+//    
+//    /**
+//     * Compares 2 lists to search list2 for the presence of a number 1 greater than
+//     * number in list1
+//     * 
+//     * @param list1 list of postings in a particular document
+//     * @param list2 list of postings in a particular document
+//     * @return 
+//     */
+//    public static boolean compareList(List<Integer> list1, List<Integer> list2){
+//        int pointer1 = 0, pointer2 = 0;
+//        
+//        while(true){
+//            int position1 = list1.get(pointer1);
+//            int position2 = list2.get(pointer2);
+//
+//            if(position2 == position1+1){
+//                return true;
+//            }
+//            else if(position2 > position1+1){
+//                pointer1++;
+//            }
+//            else if(position2 < position1+1){
+//                pointer2++;
+//            }
+//            
+//            if(pointer1 == list1.size() || pointer2 == list2.size())    
+//                break;
+//        }
+//        return false;
+//    }
+    
     public static List<PositionalPostingsStructure> positionalSearch(
-        List<PositionalPostingsStructure> list1, List<PositionalPostingsStructure> list2){
+        List<PositionalPostingsStructure> list1, List<PositionalPostingsStructure> list2,
+        int gap){
         int pointer1 = 0, pointer2 = 0;
         List<PositionalPostingsStructure> resultList = 
                 new ArrayList<>();
@@ -41,7 +103,7 @@ public class SearchEngineUtilities {
             
             if(docId1 == docId2){
                 boolean flag = compareList(list1.get(pointer1).getPositionList(),
-                        list2.get(pointer2).getPositionList());
+                        list2.get(pointer2).getPositionList(),gap);
                 if(flag)
                     resultList.add(list2.get(pointer2));
                 pointer1++;
@@ -67,20 +129,20 @@ public class SearchEngineUtilities {
      * @param list2 list of postings in a particular document
      * @return 
      */
-    public static boolean compareList(List<Integer> list1, List<Integer> list2){
+    public static boolean compareList(List<Integer> list1, List<Integer> list2, int gap){
         int pointer1 = 0, pointer2 = 0;
         
         while(true){
             int position1 = list1.get(pointer1);
             int position2 = list2.get(pointer2);
 
-            if(position2 == position1+1){
+            if(position2 - position1 <= gap && position2 - position1 > 0){
                 return true;
             }
-            else if(position2 > position1+1){
+            else if(position2 - position1 > gap){
                 pointer1++;
             }
-            else if(position2 < position1+1){
+            else if(position2 - position1 < gap){
                 pointer2++;
             }
             

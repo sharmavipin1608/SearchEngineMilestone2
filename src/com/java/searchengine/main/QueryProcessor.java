@@ -171,11 +171,49 @@ public class QueryProcessor {
      * @param phraseQuery Query entered by the user
      * @return Postings list for the phrase
      */
+//    public List<PositionalPostingsStructure> searchPhrase(String phraseQuery){
+//        List<PositionalPostingsStructure> list1;
+//        List<PositionalPostingsStructure> list2;
+//        List<PositionalPostingsStructure> resultList = new ArrayList<>();
+//        String terms[] = phraseQuery.split(" ");
+//        for(int i = 0; i < (terms.length - 1); i++){
+//            if( i == 0 ){
+//                list1 = searchTerm(terms[i], true);
+//            }
+//            else{
+//                list1 = resultList;
+//            }
+//            list2 = searchTerm(terms[i+1], true);
+//            if(list1 == null || list2 == null){
+//                resultList = null;
+//                break;
+//            }
+//                
+//            resultList = SearchEngineUtilities.positionalSearch(list1, list2);
+//        }
+//        
+//        return resultList;
+//    }
+    
     public List<PositionalPostingsStructure> searchPhrase(String phraseQuery){
         List<PositionalPostingsStructure> list1;
         List<PositionalPostingsStructure> list2;
         List<PositionalPostingsStructure> resultList = new ArrayList<>();
+        
+        int gap = 1;
+        
+        System.out.println("search phrase : " + phraseQuery);
+        
+        Pattern ptr = Pattern.compile("(.*)NEAR/[0-9](.*)");
+        if(ptr.matcher(phraseQuery).find()){
+            System.out.println("near query match found");
+            gap = Integer.parseInt(phraseQuery.substring(phraseQuery.indexOf("/")+1, phraseQuery.indexOf("/")+2));
+            phraseQuery = phraseQuery.replaceAll(" NEAR/[0-9]", "");
+        }
+        
+        System.out.println("phraseQuery : " + phraseQuery);
         String terms[] = phraseQuery.split(" ");
+        
         for(int i = 0; i < (terms.length - 1); i++){
             if( i == 0 ){
                 list1 = searchTerm(terms[i], true);
@@ -189,7 +227,7 @@ public class QueryProcessor {
                 break;
             }
                 
-            resultList = SearchEngineUtilities.positionalSearch(list1, list2);
+            resultList = SearchEngineUtilities.positionalSearch(list1, list2, gap);
         }
         
         return resultList;

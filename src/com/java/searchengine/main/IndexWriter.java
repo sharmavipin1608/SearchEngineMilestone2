@@ -62,7 +62,7 @@ public class IndexWriter {
         indexFiles(folder, index);
         Calendar cal1 = Calendar.getInstance();
         SimpleDateFormat sdf1 = new SimpleDateFormat("HH:mm:ss");
-        System.out.println("\nIndexing of files ended at : " 
+        System.out.println("Indexing of files ended at : " 
                 + sdf.format(cal1.getTime()) );
         
 			// at this point, "index" contains the in-memory inverted index 
@@ -81,7 +81,7 @@ public class IndexWriter {
         buildVocabFile(folder, dictionary, vocabPositions);
         Calendar cal3 = Calendar.getInstance();
         SimpleDateFormat sdf3 = new SimpleDateFormat("HH:mm:ss");
-        System.out.println("\nWriting vocab file ends : " 
+        System.out.println("Writing vocab file ends : " 
                 + sdf3.format(cal3.getTime()) );
         
         Calendar cal4 = Calendar.getInstance();
@@ -91,7 +91,7 @@ public class IndexWriter {
         double[] documentWeights = buildDocWeightsFile(folder,index,averageTermFreq);
         Calendar cal5 = Calendar.getInstance();
         SimpleDateFormat sdf5 = new SimpleDateFormat("HH:mm:ss");
-        System.out.println("\nWriting doc weight file ends : " 
+        System.out.println("Writing doc weight file ends : " 
                 + sdf5.format(cal5.getTime()) );
         
         Calendar cal6 = Calendar.getInstance();
@@ -101,14 +101,8 @@ public class IndexWriter {
         buildPostingsFile(folder, index, dictionary, vocabPositions, averageTermFreq, documentWeights);
         Calendar cal7 = Calendar.getInstance();
         SimpleDateFormat sdf7 = new SimpleDateFormat("HH:mm:ss");
-        System.out.println("\nWriting postings file end : " 
-                + sdf7.format(cal7
-                        
-                        
-                        
-                        
-                        
-                        .getTime()) );
+    System.out.println("Writing postings file end : " 
+                + sdf7.format(cal7.getTime()) );
     }
 
     /**
@@ -141,12 +135,12 @@ public class IndexWriter {
             double averageDocumentWeight = 0;
             for(int i=0; i<=numberOfDocuments; i++){
                 averageDocumentWeight += documentWeights[i];
-                System.out.println("Index : " + i + " averageTermFreq : " 
-                        + averageTermFreq[i] + " documentWeights : " + documentWeights[i]);
+//                System.out.println("Index : " + i + " averageTermFreq : " 
+//                        + averageTermFreq[i] + " documentWeights : " + documentWeights[i]);
                 
             }
             averageDocumentWeight = (averageDocumentWeight/(numberOfDocuments+1));
-            System.out.println("averageDocumentWeight : "+averageDocumentWeight);
+//            System.out.println("averageDocumentWeight : "+averageDocumentWeight);
             //end
             
             for (String s : dictionary) {
@@ -402,8 +396,8 @@ public class IndexWriter {
         double[] numOfTerms = new double[numberOfDocuments+1];
         double[] freqSum = new double[numberOfDocuments+1];
         
-        System.out.println("--------calculateDocumentWeights-----------");
-        System.out.println("num of docs" + numberOfDocuments);
+//        System.out.println("--------calculateDocumentWeights-----------");
+//        System.out.println("num of docs" + numberOfDocuments);
         for(String term : index.getDictionary()){
             List<PositionalPostingsStructure> postings = index.getPostings(term);
             for(PositionalPostingsStructure posStruct : postings){
