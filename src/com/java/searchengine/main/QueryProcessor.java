@@ -1,24 +1,21 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.java.searchengine.main;
 
 import com.java.searchengine.datastructure.PositionalPostingsStructure;
 import com.java.searchengine.util.SearchEngineUtilities;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.regex.Pattern;
 
 /**
- *
- * @author vipinsharma
+ * Process the query in boolean mode
  */
 public class QueryProcessor {
     DiskInvertedIndex index;
     
+    /**
+     *
+     * @param diskIndex
+     */
     public QueryProcessor(DiskInvertedIndex diskIndex){
         index = diskIndex;
     }
@@ -170,31 +167,7 @@ public class QueryProcessor {
      * 
      * @param phraseQuery Query entered by the user
      * @return Postings list for the phrase
-     */
-//    public List<PositionalPostingsStructure> searchPhrase(String phraseQuery){
-//        List<PositionalPostingsStructure> list1;
-//        List<PositionalPostingsStructure> list2;
-//        List<PositionalPostingsStructure> resultList = new ArrayList<>();
-//        String terms[] = phraseQuery.split(" ");
-//        for(int i = 0; i < (terms.length - 1); i++){
-//            if( i == 0 ){
-//                list1 = searchTerm(terms[i], true);
-//            }
-//            else{
-//                list1 = resultList;
-//            }
-//            list2 = searchTerm(terms[i+1], true);
-//            if(list1 == null || list2 == null){
-//                resultList = null;
-//                break;
-//            }
-//                
-//            resultList = SearchEngineUtilities.positionalSearch(list1, list2);
-//        }
-//        
-//        return resultList;
-//    }
-    
+     */    
     public List<PositionalPostingsStructure> searchPhrase(String phraseQuery){
         List<PositionalPostingsStructure> list1;
         List<PositionalPostingsStructure> list2;
@@ -237,6 +210,7 @@ public class QueryProcessor {
      * Search the term in the positional inverted index
      * 
      * @param term Term to be searched
+     * @param getPositions
      * @return Postings list for the term
      */
     public ArrayList<PositionalPostingsStructure> searchTerm(String term, 

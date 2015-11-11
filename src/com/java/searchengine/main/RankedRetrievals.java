@@ -1,20 +1,13 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.java.searchengine.main;
 
 import com.java.searchengine.datastructure.PositionalPostingsStructure;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
 import java.util.PriorityQueue;
 
 /**
- *
- * @author vipinsharma
+ * Process the user query in ranked retrieval mode
  */
 public class RankedRetrievals {
 
@@ -26,6 +19,12 @@ public class RankedRetrievals {
     private int weighingScheme;
     private Accumulator[] accumulatorArray;
 
+    /**
+     * Constructor for the class
+     * 
+     * @param index -instance of the disk inverted index
+     * @param weighingScheme - weighing scheme chosen by the user
+     */
     public RankedRetrievals(DiskInvertedIndex index, int weighingScheme) {
         this.index = index;
         this.corpusSize = index.getFileNames().size();
@@ -43,11 +42,8 @@ public class RankedRetrievals {
         if (postings != null) {
             documentFrequencyTerm = postings.size();
 
-        //variableTermFreq = new Wacky();
             //Step1: Calculate w(q,t)
             double weightQueryTerm = variableTermFreq.queryTermWeight(corpusSize, documentFrequencyTerm);
-//        double weightQueryTerm1 = Math.log(1 + (corpusSize/documentFrequencyTerm));
-//        System.out.println("Weight : "+weightQueryTerm + " weightQueryTerm1 : " + weightQueryTerm1);
 
             //Step2: For each document in terms postings list
             for (PositionalPostingsStructure posStruct : postings) {
@@ -55,46 +51,36 @@ public class RankedRetrievals {
                 double accumulatorValueForDoc = 0;
                 //start
                 Accumulator tempAccumulator;
-                if(accumulatorArray[posStruct.getDocumentId()] != null){
+                if (accumulatorArray[posStruct.getDocumentId()] != null) {
                     tempAccumulator = accumulatorArray[posStruct.getDocumentId()];
                     accumulatorValueForDoc = tempAccumulator.getAccumulatorValue();
-                }
-                else{
+                } else {
                     tempAccumulator = new Accumulator();
-                }    
+                }
                 tempAccumulator.setDocId(posStruct.getDocumentId());
                 //end
                 if (accumulator.get(posStruct.getDocumentId()) != null) {
                     accumulatorValueForDoc = accumulator.get(posStruct.getDocumentId());
                 }
-//
-//                //Step2.2: Calculate w(d,t)
+
+                //Step2.2: Calculate w(d,t)
                 double docWeightTerm = posStruct.getDocWeight();
-//                System.out.println("docWeightTerm : " + docWeightTerm);
-////            double docWeightTerm1 = 1 + Math.log(posStruct.getTermFrequency());
-////            System.out.println("docWeightTerm : "+docWeightTerm + " docWeightTerm1 : " + docWeightTerm1);
-//
-//                //Step2.3: Increase accumulator value
+
+                //Step2.3: Increase accumulator value
                 accumulatorValueForDoc += weightQueryTerm * docWeightTerm;
-//
-//                //Step2.4: Update accumulator value in HashMap
+
+                //Step2.4: Update accumulator value in HashMap
                 accumulator.put(posStruct.getDocumentId(), accumulatorValueForDoc);
                 tempAccumulator.setAccumulatorValue(accumulatorValueForDoc);
                 accumulatorArray[posStruct.getDocumentId()] = tempAccumulator;
-                
+
             }
         }
-        
-        
+
     }
 
     //Step2: Divide accumulator value by document weight
     private void recalculateAccumulator() {
-        //System.out.println("recalculateAccumulator--------");
-//        for (int docId : accumulator.keySet()) {
-//            System.out.println("Doc Id -> " + docId + " ; Accumulator -> " + accumulator.get(docId));
-//        }
-
         for (int docId : accumulator.keySet()) {
             //System.out.println("Document weight : "+variableTermFreq.documentWeight(index,docId));
             double accumulatorValue = accumulator.get(docId);
@@ -102,61 +88,65 @@ public class RankedRetrievals {
 
             accumulator.put(docId, accumulatorValue);
         }
-        
+
         Comparator<Accumulator> valueComparator = new Comparator<Accumulator>() {
             public int compare(Accumulator o1, Accumulator o2) {
-            double difference = o2.getAccumulatorValue() - o1.getAccumulatorValue();
-            if( difference == 0)
-                return 0;
-            else if (difference > 0)
-                return 1;
-            else
-                return -1;
-        }
-        };
-        
-        PriorityQueue aQueue = new PriorityQueue(accumulator.keySet().size(),valueComparator);
-        for(Accumulator acc : accumulatorArray){
-            if(acc != null){
-                //System.out.println(index.getFileNames().get(acc.getDocId()) + " -> " + variableTermFreq.documentWeight(index, acc.getDocId()));
-                acc.setAccumulatorValue(acc.getAccumulatorValue()/variableTermFreq.documentWeight(index, acc.getDocId()));
-                aQueue.add(acc);
+                double difference = o2.getAccumulatorValue() - o1.getAccumulatorValue();
+                if (difference == 0) {
+                    return 0;
+                } else if (difference > 0) {
+                    return 1;
+                } else {
+                    return -1;
+                }
             }
-                
+        };
+
+        if (accumulator.keySet().size() > 0) {
+            PriorityQueue aQueue = new PriorityQueue(accumulator.keySet().size(), valueComparator);
+            for (Accumulator acc : accumulatorArray) {
+                if (acc != null) {
+                    //System.out.println(index.getFileNames().get(acc.getDocId()) + " -> " + variableTermFreq.documentWeight(index, acc.getDocId()));
+                    acc.setAccumulatorValue(acc.getAccumulatorValue() / variableTermFreq.documentWeight(index, acc.getDocId()));
+                    aQueue.add(acc);
+                }
+
+            }
+
+            //aQueue.comparator() = new Comparator(
+            int accSize = accumulator.keySet().size() > 10 ? 10 : accumulator.keySet().size();
+            for (int i = 0; i < accSize; i++) {
+                Accumulator acc = (Accumulator) aQueue.poll();
+                System.out.println("doc id : " + index.getFileNames().get(acc.getDocId()) + " accumulator : " + acc.getAccumulatorValue());
+            }
         }
-        
-        //aQueue.comparator() = new Comparator(
-        int accSize = accumulator.keySet().size() > 10 ? 10 : accumulator.keySet().size();
-        for(int i=0;i<accSize;i++){
-            Accumulator acc = (Accumulator)aQueue.poll();
-            System.out.println("doc id : " + index.getFileNames().get(acc.getDocId()) + " accumulator : " + acc.getAccumulatorValue());
+        else{
+            System.out.println("No match found");
         }
+
     }
 
+    /**
+     * Start calculations of the accumulator
+     * 
+     * @param userQuery - query entered by the user
+     */
     public void beginCalculations(String userQuery) {
         String[] terms = userQuery.split(" ");
         for (String term : terms) {
             term = PorterStemmer.processToken(term);
             calculateQueryTermWeight(term);
         }
-        
-        
-        
-//        System.out.println("beginCalculations--------");
-//        for (int docId : accumulator.keySet()) {
-//            System.out.println("Doc Id -> " + docId + " ; Accumulator -> " + accumulator.get(docId));
-//        }
 
         recalculateAccumulator();
-
-//        System.out.println("beginCalculations--------");
-//        for (int docId : accumulator.keySet()) {
-//            System.out.println("Doc Id -> " + docId + " ; Accumulator -> " + accumulator.get(docId));
-//        }
-        
     }
     
-    class Accumulator implements Comparator<Accumulator>{
+    /**
+     * Class is being used to club the values of docId and accumulator which 
+     * are required when using the priority queue
+     */
+    class Accumulator implements Comparator<Accumulator> {
+
         private int docId;
         private double accumulatorValue;
 
@@ -175,8 +165,8 @@ public class RankedRetrievals {
         public void setAccumulatorValue(double accumulatorValue) {
             this.accumulatorValue = accumulatorValue;
         }
-        
-        public Accumulator(){
+
+        public Accumulator() {
             docId = -1;
             accumulatorValue = 0;
         }
@@ -184,12 +174,13 @@ public class RankedRetrievals {
         @Override
         public int compare(Accumulator o1, Accumulator o2) {
             double difference = o2.getAccumulatorValue() - o1.getAccumulatorValue();
-            if( difference == 0)
+            if (difference == 0) {
                 return 0;
-            else if (difference > 0)
+            } else if (difference > 0) {
                 return 1;
-            else
+            } else {
                 return -1;
+            }
         }
     }
 }

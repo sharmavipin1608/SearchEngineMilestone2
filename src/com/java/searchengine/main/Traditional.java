@@ -1,22 +1,35 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.java.searchengine.main;
 
 /**
- *
- * @author vipinsharma
+ * Calculate document weight term according to Traditional weighing scheme
  */
 public class Traditional implements IVariableTermFrequency{
 
+    /**
+     * Calculate the weight of term in the query
+     * 
+     * @param sizeOfCorpus - Total number of documents
+     * @param documentFreqOfTerm - Number of documents containing the term
+     * 
+     * @return term weight in the query
+     */
     @Override
     public double queryTermWeight(int sizeOfCorpus, int documentFreqOfTerm) {
         double weightQueryTerm = Math.log((double)sizeOfCorpus/documentFreqOfTerm);
         return weightQueryTerm;
     }
 
+    /**
+     * Calculate the weight of term in the document
+     * 
+     * @param freqOfTermInDoc - Frequency of term in the particular document
+     * @param averageTermFreq - Average term frequency
+     * @param documentWeight - Weight of the document
+     * @param averageDocumentWeight  Average weight of the document
+     * @param docId - document Id
+     * 
+     * @return document weight of the term
+     */
     @Override
     public double documentTermWeight(int freqOfTermInDoc, double averageTermFreq, 
             double documentWeight, double averageDocumentWeight, int docId) {
@@ -24,6 +37,14 @@ public class Traditional implements IVariableTermFrequency{
         return docWeightTerm;
     }
 
+    /**
+     * Calculate the document weight
+     * 
+     * @param index - DiskInvertedIndex instance
+     * @param docId - document Id
+     * 
+     * @return document weight
+     */
     @Override
     public double documentWeight(DiskInvertedIndex index, int docId) {
         return index.getDocumentWeights(docId);

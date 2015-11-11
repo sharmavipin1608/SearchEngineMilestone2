@@ -1,4 +1,4 @@
-package com.java.searchengine.main;
+package Archive;
 
 import com.java.searchengine.datastructure.PositionalPostingsStructure;
 import static java.lang.System.exit;

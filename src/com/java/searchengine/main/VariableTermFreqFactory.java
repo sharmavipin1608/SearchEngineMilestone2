@@ -1,15 +1,19 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.java.searchengine.main;
 
 /**
- *
- * @author vipinsharma
+ * Factory class to return an object of IVariableTermFrequency depending on the 
+ * weighing scheme chosen by the user.
  */
 public class VariableTermFreqFactory {
+
+    /**
+     * Returns object of Default, Traditional, Okapi or Wacky depending on the
+     * weighing scheme chosen by the user.
+     * 
+     * @param scheme - weighing scheme chosen by the user
+     * 
+     * @return IVariableTermFrequency
+     */
     public static IVariableTermFrequency getWeightingScheme(int scheme){
         IVariableTermFrequency variableTermFrequency;
         

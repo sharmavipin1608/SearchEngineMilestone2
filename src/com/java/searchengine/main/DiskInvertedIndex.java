@@ -14,22 +14,27 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 
+/**
+ * Reading .bin files from disk and return the data relevant to the query
+ */
 public class DiskInvertedIndex {
 
     public String mPath;
     private RandomAccessFile mVocabList;
     private RandomAccessFile mPostings;
-    //private RandomAccessFile mDocWeights;
     private long[] mVocabTable;
     private List<String> mFileNames;
 
+    /**
+     * Constructor to initialize the path of the .bin files
+     * 
+     * @param path - path of the corpus
+     */
     public DiskInvertedIndex(String path) {
         try {
-            //System.out.println(path);
             mPath = path;
             mVocabList = new RandomAccessFile(new File(path, "vocab.bin"), "r");
             mPostings = new RandomAccessFile(new File(path, "postings.bin"), "r");
-            //mDocWeights = new RandomAccessFile(new File(path, "docWeights.bin"), "r");
             mVocabTable = readVocabTable(path);
             mFileNames = readFileNames(path);
         } catch (FileNotFoundException ex) {
@@ -116,6 +121,15 @@ public class DiskInvertedIndex {
         return null;
     }
 
+    /**
+     * Read postings from disk
+     * 
+     * @param term
+     * @param readPositions - boolean to check if positions have to be read from index
+     * @param weighingScheme - weighing scheme selected by user
+     * 
+     * @return array list of postings for the term
+     */
     public ArrayList<PositionalPostingsStructure> GetPostings(String term, 
             boolean readPositions, int weighingScheme) {
         long postingsPosition = binarySearchVocabulary(term);
@@ -127,11 +141,27 @@ public class DiskInvertedIndex {
         return null;
     }
     
+    /**
+     * Read postings from disk for boolean mode queries
+     * 
+     * @param term
+     * @param readPositions - boolean to check if positions have to be read from index
+     * 
+     * @return array list of postings for the term
+     */
     public ArrayList<PositionalPostingsStructure> getPostingsBooleanMode(
             String term, boolean readPositions) {
         return GetPostings(term,readPositions,0);
     }
     
+    /**
+     * Read postings from disk for ranked mode queries
+     * 
+     * @param term
+     * @param weighingScheme - weighing scheme selected by user
+     * 
+     * @return array list of postings for the term
+     */
     public ArrayList<PositionalPostingsStructure> getPostingsRankedMode(
             String term, int weighingScheme) {
         return GetPostings(term,false,weighingScheme);
@@ -214,6 +244,13 @@ public class DiskInvertedIndex {
         return null;
     }
 
+    /**
+     * Read document weights from disk
+     * 
+     * @param docId - document id to get the weight for
+     * 
+     * @return document weight for the document
+     */
     public double getDocumentWeights(int docId) {
         double weight = 0;
         try {
@@ -227,19 +264,19 @@ public class DiskInvertedIndex {
             mDocWeights.read(byteBuffer, 0, byteBuffer.length);
             weight = ByteBuffer.wrap(byteBuffer).getDouble();
 
-            //System.out.println(weight);
-
-//           while (mDocWeights.read(byteBuffer, 0, byteBuffer.length) > 0) { // while we keep reading 8 bytes
-//             double weight = ByteBuffer.wrap(byteBuffer).getDouble();
-//            //System.out.println(new String(byteBuffer,"ASCII"));
-//            System.out.println("weight" + weight);
-//         }
         } catch (Exception ex) {
 
         }
         return weight;
     }
 
+    /**
+     * Calculate average term frequency for the document
+     * 
+     * @param docId - document id
+     * 
+     * @return - average term frequency for the document
+     */
     public double getAvgTermFreqForDoc(int docId){
         double avgTermFreq = 0;
         try {
@@ -253,15 +290,10 @@ public class DiskInvertedIndex {
             mDocWeights.read(byteBuffer, 0, byteBuffer.length);
             avgTermFreq = ByteBuffer.wrap(byteBuffer).getDouble();
 
-            System.out.println("avgTermFreq" + avgTermFreq);
+            //System.out.println("avgTermFreq" + avgTermFreq);
 
-//           while (mDocWeights.read(byteBuffer, 0, byteBuffer.length) > 0) { // while we keep reading 8 bytes
-//             double weight = ByteBuffer.wrap(byteBuffer).getDouble();
-//            //System.out.println(new String(byteBuffer,"ASCII"));
-//            System.out.println("weight" + weight);
-//         }
         } catch (Exception ex) {
-
+            System.out.println(ex.getStackTrace());
         }
         return avgTermFreq;
     }
@@ -296,10 +328,20 @@ public class DiskInvertedIndex {
         return null;
     }
 
+    /**
+     * Get a list of file Names
+     * 
+     * @return - list of file names
+     */
     public List<String> getFileNames() {
         return mFileNames;
     }
 
+    /**
+     * Returns the term count of the index
+     * 
+     * @return - term count of index
+     */
     public int getTermCount() {
         return mVocabTable.length / 2;
     }

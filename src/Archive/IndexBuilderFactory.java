@@ -1,8 +1,9 @@
-package com.java.searchengine.main;
+package Archive;
 
 
 import com.java.searchengine.index.PositionalInvertedIndex;
 import com.java.searchengine.datastructure.PositionalPostingsStructure;
+import com.java.searchengine.main.PorterStemmer;
 import com.java.searchengine.util.SearchEngineUtilities;
 import com.java.searchengine.util.SimpleTokenStream;
 import java.io.File;

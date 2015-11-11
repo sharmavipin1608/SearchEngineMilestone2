@@ -3,6 +3,10 @@ package com.java.searchengine.main;
 import static java.lang.System.exit;
 import java.util.Scanner;
 
+/**
+ * Starting point for the application
+ */
+
 public class DiskEngine {
 
     public static void main(String[] args) {

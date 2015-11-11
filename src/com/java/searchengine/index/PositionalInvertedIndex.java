@@ -1,7 +1,7 @@
 package com.java.searchengine.index;
 
 
-import com.java.searchengine.main.IndexBuilderFactory;
+import Archive.IndexBuilderFactory;
 import com.java.searchengine.datastructure.PositionalPostingsStructure;
 import com.java.searchengine.util.SearchEngineUtilities;
 import java.util.ArrayList;
@@ -210,6 +210,11 @@ public class PositionalInvertedIndex {
         System.out.println("\nTotal Memory Requirement : " + ((double) totalMemoryRequirement / (1024 * 1024)) + " MB");
     }
     
+    /**
+     * Get all the terms in the index in a sorted order
+     * 
+     * @return Sorted String array of all the terms
+     */
     public String[] getDictionary() {
         String[] termsArray = pIndex.keySet().toArray(
                 new String[pIndex.keySet().size()]);

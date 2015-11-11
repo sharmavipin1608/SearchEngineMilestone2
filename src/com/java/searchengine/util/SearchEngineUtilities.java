@@ -19,77 +19,16 @@ public class SearchEngineUtilities {
             System.out.print(" ");
         }
     }
-      
+    
     /**
      * Performs positional search while searching for the phrase in positional 
      * inverted index.
      * 
      * @param list1 Postings list for term 1
      * @param list2 Postings list for term 2
+     * @param gap
      * @return list of postings after performing positional search on 2 terms
      */
-        
-//    public static List<PositionalPostingsStructure> positionalSearch(
-//        List<PositionalPostingsStructure> list1, List<PositionalPostingsStructure> list2){
-//        int pointer1 = 0, pointer2 = 0;
-//        List<PositionalPostingsStructure> resultList = 
-//                new ArrayList<>();
-//        
-//        while(true){
-//            int docId1 = list1.get(pointer1).getDocumentId();
-//            int docId2 = list2.get(pointer2).getDocumentId();
-//            
-//            if(docId1 == docId2){
-//                boolean flag = compareList(list1.get(pointer1).getPositionList(),
-//                        list2.get(pointer2).getPositionList());
-//                if(flag)
-//                    resultList.add(list2.get(pointer2));
-//                pointer1++;
-//                pointer2++;
-//            }
-//            else if(docId1 > docId2){
-//                pointer2++;
-//            }
-//            else if(docId1 < docId2){
-//                pointer1++;
-//            }
-//            if(pointer1 >= list1.size() || pointer2 >= list2.size())    
-//                break;
-//        }
-//        return resultList;
-//    }
-//    
-//    /**
-//     * Compares 2 lists to search list2 for the presence of a number 1 greater than
-//     * number in list1
-//     * 
-//     * @param list1 list of postings in a particular document
-//     * @param list2 list of postings in a particular document
-//     * @return 
-//     */
-//    public static boolean compareList(List<Integer> list1, List<Integer> list2){
-//        int pointer1 = 0, pointer2 = 0;
-//        
-//        while(true){
-//            int position1 = list1.get(pointer1);
-//            int position2 = list2.get(pointer2);
-//
-//            if(position2 == position1+1){
-//                return true;
-//            }
-//            else if(position2 > position1+1){
-//                pointer1++;
-//            }
-//            else if(position2 < position1+1){
-//                pointer2++;
-//            }
-//            
-//            if(pointer1 == list1.size() || pointer2 == list2.size())    
-//                break;
-//        }
-//        return false;
-//    }
-    
     public static List<PositionalPostingsStructure> positionalSearch(
         List<PositionalPostingsStructure> list1, List<PositionalPostingsStructure> list2,
         int gap){
@@ -127,6 +66,7 @@ public class SearchEngineUtilities {
      * 
      * @param list1 list of postings in a particular document
      * @param list2 list of postings in a particular document
+     * @param gap
      * @return 
      */
     public static boolean compareList(List<Integer> list1, List<Integer> list2, int gap){
@@ -170,6 +110,14 @@ public class SearchEngineUtilities {
             return null;
     }
     
+    /**
+     * Convert a list of PositionalPostingsStructure into an array of document
+     * id
+     * 
+     * @param list - List of PositionalPostingsStructure
+     * 
+     * @return - integer array
+     */
     public static int[] convertListToArray(List<PositionalPostingsStructure> list){
         if(list != null){
             int listSize = list.size();
@@ -184,6 +132,14 @@ public class SearchEngineUtilities {
         }
     }
     
+    /**
+     * Calculates intersection between 2 integer arrays
+     * 
+     * @param arr1
+     * @param arr2
+     * 
+     * @return - integer array
+     */
     public static int[] arrayIntersection(int[] arr1, int[] arr2){
         int arr1size = arr1.length;
         int arr2size = arr2.length;
@@ -229,6 +185,14 @@ public class SearchEngineUtilities {
         return resultArray;
     }
     
+    /**
+     * Calculates union of two integer arrays
+     * 
+     * @param arr1
+     * @param arr2
+     * 
+     * @return - integer array
+     */
     public static int[] arrayUnion(int[] arr1, int[] arr2){
         int arr1size = arr1.length;
         int arr2size = arr2.length;

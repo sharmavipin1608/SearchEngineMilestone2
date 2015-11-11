@@ -1,6 +1,7 @@
-package com.java.searchengine.main;
+package Archive;
 
 
+import Archive.IndexBuilderFactory;
 import com.java.searchengine.index.NaiveInvertedIndex;
 import com.java.searchengine.index.PositionalInvertedIndex;
 import com.java.searchengine.datastructure.PositionalPostingsStructure;
