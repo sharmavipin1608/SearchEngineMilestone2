@@ -67,6 +67,13 @@ public class RankedRetrievals {
                 double docWeightTerm = posStruct.getDocWeight();
 
                 //Step2.3: Increase accumulator value
+//                if(posStruct.getDocumentId() > 657)
+//                    System.out.println("term : " + term + " docid : " + posStruct.getDocumentId()
+//                        + " accumulatorValueForDoc : " + accumulatorValueForDoc + " weightQueryTerm : "
+//                            + weightQueryTerm + " docWeightTerm : " + docWeightTerm);
+//                if(accumulatorValueForDoc > 100){
+//                    System.out.println("too high");
+//                }
                 accumulatorValueForDoc += weightQueryTerm * docWeightTerm;
 
                 //Step2.4: Update accumulator value in HashMap
@@ -84,6 +91,9 @@ public class RankedRetrievals {
         for (int docId : accumulator.keySet()) {
             //System.out.println("Document weight : "+variableTermFreq.documentWeight(index,docId));
             double accumulatorValue = accumulator.get(docId);
+//            System.out.println("recalculate -> doc id : " + docId + 
+//                    " accumulatorValue : " + accumulatorValue + " variable term freq : "
+//                    + variableTermFreq.documentWeight(index, docId));
             accumulatorValue = accumulatorValue / variableTermFreq.documentWeight(index, docId); //index.getDocumentWeights(docId)EXIT
 
             accumulator.put(docId, accumulatorValue);
@@ -117,7 +127,7 @@ public class RankedRetrievals {
             int accSize = accumulator.keySet().size() > 10 ? 10 : accumulator.keySet().size();
             for (int i = 0; i < accSize; i++) {
                 Accumulator acc = (Accumulator) aQueue.poll();
-                System.out.println("doc id : " + index.getFileNames().get(acc.getDocId()) + " accumulator : " + acc.getAccumulatorValue());
+                System.out.println("doc id : " + acc.getDocId() + " doc name : " + index.getFileNames().get(acc.getDocId()) + " accumulator : " + acc.getAccumulatorValue());
             }
         }
         else{

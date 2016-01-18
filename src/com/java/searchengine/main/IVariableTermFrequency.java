@@ -35,4 +35,6 @@ public interface IVariableTermFrequency {
      * @return document weight
      */
     public double documentWeight(DiskInvertedIndex index, int docId);
+    
+    //public double postDocTermWght(int freqOfTermInDoc);
 }

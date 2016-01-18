@@ -1,6 +1,7 @@
 package com.java.searchengine.main;
 
 import com.java.searchengine.datastructure.PositionalPostingsStructure;
+import com.java.searchengine.util.SearchEngineUtilities;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -42,7 +43,7 @@ public class DiskInvertedIndex {
         }
     }
 
-    private static ArrayList<PositionalPostingsStructure>
+    private ArrayList<PositionalPostingsStructure>
             readPostingsFromFile(RandomAccessFile postings, long postingsPosition,
                     int weighingScheme, boolean readPositions) {
         try {
@@ -78,22 +79,41 @@ public class DiskInvertedIndex {
                 //System.out.println("doc ID" + docId + " last doc : "+lastDoc);
                 //postings.seek(postingsPosition+40);
                 
-                if(weighingScheme > 0){
-                    byte[] docWghtBuffer = new byte[8];
-                    int index = (weighingScheme-1)*8;
-                    postings.skipBytes(index);
-                    postings.read(docWghtBuffer, 0, docWghtBuffer.length);
-                    docWeight = ByteBuffer.wrap(docWghtBuffer).getDouble();
-                    postings.skipBytes(32 - (8 * weighingScheme)); 
-                }
-                else{
+                //start - modifications for masking pre-computed logs
+//                if(weighingScheme > 0){
+//                    byte[] docWghtBuffer = new byte[8];
+//                    int index = (weighingScheme-1)*8;
+//                    postings.skipBytes(index);
+//                    postings.read(docWghtBuffer, 0, docWghtBuffer.length);
+//                    docWeight = ByteBuffer.wrap(docWghtBuffer).getDouble();
+//                    postings.skipBytes(32 - (8 * weighingScheme)); 
+//                }
+//                else{
                     postings.skipBytes(32);
-                }
+//                }
+                    
+                //end - modifications for masking pre-computed logs
                 
                 //read positions
                 postings.read(buffer, 0, buffer.length);
                 int termFrequency = ByteBuffer.wrap(buffer).getInt();
                 //System.out.println("term freq : " + termFrequency);
+                
+                //start - modifications
+                IVariableTermFrequency scheme = VariableTermFreqFactory.getWeightingScheme(weighingScheme);
+                double avgTermFreqForDoc;
+                avgTermFreqForDoc = getAvgTermFreqForDoc(docId);
+                double documentWeight = 0;
+                double avgDocWght = 0;
+                
+                if(weighingScheme == 3){
+                    documentWeight = getDocumentWeights(docId);
+                    for(int z=0;z<mFileNames.size();z++)
+                        avgDocWght += getDocumentWeights(z);
+                    avgDocWght = avgDocWght/mFileNames.size();
+                }
+                docWeight = scheme.documentTermWeight(termFrequency,avgTermFreqForDoc,documentWeight,avgDocWght,0);
+                //end modifications
                 
                 ArrayList<Integer> positionList = null;
                 if(readPositions){
@@ -133,7 +153,6 @@ public class DiskInvertedIndex {
     public ArrayList<PositionalPostingsStructure> GetPostings(String term, 
             boolean readPositions, int weighingScheme) {
         long postingsPosition = binarySearchVocabulary(term);
-        //System.out.println("long position : "+postingsPosition);
         if (postingsPosition >= 0) {
             return readPostingsFromFile(mPostings, postingsPosition,
                     weighingScheme, readPositions);
@@ -263,9 +282,9 @@ public class DiskInvertedIndex {
 
             mDocWeights.read(byteBuffer, 0, byteBuffer.length);
             weight = ByteBuffer.wrap(byteBuffer).getDouble();
-
+            mDocWeights.close();
         } catch (Exception ex) {
-
+            System.out.println("Document weights : " + ex.getMessage());
         }
         return weight;
     }
@@ -283,7 +302,7 @@ public class DiskInvertedIndex {
             RandomAccessFile mDocWeights = new RandomAccessFile(
                     new File(mPath, "docWeights.bin"), "r");
             byte[] byteBuffer = new byte[8];
-            System.out.println("here" + docId);
+            //System.out.println("here" + docId);
 
             mDocWeights.seek(2 * 8 * docId + 8);
 
@@ -291,7 +310,7 @@ public class DiskInvertedIndex {
             avgTermFreq = ByteBuffer.wrap(byteBuffer).getDouble();
 
             //System.out.println("avgTermFreq" + avgTermFreq);
-
+            mDocWeights.close();
         } catch (Exception ex) {
             System.out.println(ex.getStackTrace());
         }
@@ -318,10 +337,12 @@ public class DiskInvertedIndex {
                 //System.out.println(new String(byteBuffer,"ASCII"));
                 tableIndex++;
             }
+            System.out.println("===closing file : === vocabtable");
             tableFile.close();
             return vocabTable;
         } catch (FileNotFoundException ex) {
-            System.out.println(ex.toString());
+            System.out.println("DiskInvertedIndex : " + ex.getLocalizedMessage());
+            ex.printStackTrace();
         } catch (IOException ex) {
             System.out.println(ex.toString());
         }
@@ -344,5 +365,17 @@ public class DiskInvertedIndex {
      */
     public int getTermCount() {
         return mVocabTable.length / 2;
+    }
+    
+    public void closeFiles(){
+        try{
+            System.out.println("closing files mvocablist and mpostings");
+            mVocabList.close();
+            mPostings.close();
+        }
+        catch(Exception ex){
+            System.out.println(ex.getMessage());
+        }
+        
     }
 }

@@ -177,7 +177,8 @@ public class IndexWriter {
 
                     //storing document weights on file
                     for (int i = 0; i < 4; i++) {
-                        IVariableTermFrequency variableTermFrequency = VariableTermFreqFactory.getWeightingScheme(i + 1);
+                        IVariableTermFrequency variableTermFrequency = 
+                                VariableTermFreqFactory.getWeightingScheme(i + 1);
                         double docTermWght = variableTermFrequency.documentTermWeight(positionPostings.size(), averageTermFreq[docId], documentWeights[docId],
                                 averageDocumentWeight, docId);
                         //System.out.println("term : " + s + " doc ID : " + docId + " docTermWght : " + docTermWght);

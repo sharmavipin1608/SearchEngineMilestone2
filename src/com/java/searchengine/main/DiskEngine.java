@@ -1,6 +1,10 @@
 package com.java.searchengine.main;
 
+import java.io.File;
+import java.io.RandomAccessFile;
 import static java.lang.System.exit;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Scanner;
 
 /**
@@ -19,7 +23,8 @@ public class DiskEngine {
             System.out.println("1) Build index");
             System.out.println("2) Boolean Mode");
             System.out.println("3) Ranked Retrieval Mode");
-            System.out.println("4) Exit");
+            System.out.println("4) Burst Ranked Retrieval Mode");
+            System.out.println("5) Exit");
             System.out.println("Choose a selection:");
             int menuChoice = scan.nextInt();
             scan.nextLine();
@@ -94,8 +99,74 @@ public class DiskEngine {
                         rankedRetrievals.beginCalculations(input3);
                     }
                     break;
-
+                
                 case 4:
+                    System.out.println("\n\nEnter the name of an index to read:");
+                    //String indexName2 = scan.nextLine();
+                    String path = "/Users/vipinsharma/NetBeansProjects/SearchEngineAssignment2/angels";
+                    
+                    
+                    System.out.println("\n\nWeighting scheme :");
+                    System.out.println("1. Default");
+                    System.out.println("2. Traditional");
+                    System.out.println("3. Okapi");
+                    System.out.println("4. Wacky");
+                    System.out.print("Select weighting scheme : ");
+                    int weighingScheme1 = scan.nextInt();
+                    System.out.println("weighing scheme " + weighingScheme1);
+                        
+                    
+                    
+                    long[] timeArr = new long[10];
+                    DiskInvertedIndex index3 = new DiskInvertedIndex(path);
+                                
+                    for(int i=0;i<10;i++){
+                        
+                        Calendar cal1 = Calendar.getInstance();
+                        SimpleDateFormat sdf1 = new SimpleDateFormat("HH:mm:ss");
+                        System.out.println("Start time : " + sdf1.format(cal1.getTime()));
+                    
+                        try{
+                            Scanner queries = new Scanner(new File(path, "queries.bin"));
+                            //QueryProcessor query = new QueryProcessor(index1);
+                            String line;
+                            
+                                
+                            while (queries.hasNextLine()) {
+                                System.out.println("-------------------------");
+                                line = queries.nextLine();
+                                System.out.println(line);
+                                RankedRetrievals rankedRetrievals1 = new RankedRetrievals(index3,weighingScheme1);
+                                rankedRetrievals1.beginCalculations(line);
+                                //index3.closeFiles();
+                                
+
+                            }
+                        }
+                        catch(Exception ex){
+                            System.out.println("here in main : " + ex.getMessage());
+                        }
+
+                        Calendar cal2 = Calendar.getInstance();
+                        SimpleDateFormat sdf2 = new SimpleDateFormat("HH:mm:ss");
+                        System.out.println("Start time : " + sdf2.format(cal2.getTime()));
+
+                        long timediff = ((cal2.getTimeInMillis() - cal1.getTimeInMillis()));
+                        System.out.println("Time taken = " + timediff);
+                        
+                        timeArr[i] = timediff;
+                    }
+                    
+                    long sum = 0;
+                    for(int i=0;i<10;i++)
+                    {
+                        sum += timeArr[i];
+                    }
+                    sum = sum/10;
+                    System.out.println("Average time : " + sum);
+                    break;
+                    
+                case 5:
                     exit(0);
                     break;
             }
